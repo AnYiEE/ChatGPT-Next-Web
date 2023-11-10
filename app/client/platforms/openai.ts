@@ -266,6 +266,37 @@ export class ChatGPTApi implements LLMApi {
     }
   }
   async usage() {
+    if (useAccessStore.getState().isOpenaiSb) {
+      try {
+        const response = await fetch(this.path(OpenaiPath.openaiSbStatusPath), {
+          method: "GET",
+          headers: getHeaders(),
+        });
+        if (response.status === 401) {
+          throw new Error(Locale.Error.Unauthorized);
+        }
+        if (!response.ok) {
+          throw new Error("Failed to query usage from openai-sb");
+        }
+        const json = (await response.json()) as {
+          code: string;
+          data: { credit: string };
+          msg: string;
+        };
+        if (json.code !== "0") {
+          throw new Error(json.msg);
+        }
+        const credit = +(+json.data.credit / 10000).toFixed(2);
+        return {
+          used: credit,
+          total: credit,
+        };
+      } catch (e) {
+        console.log(e);
+        return {} as LLMUsage;
+      }
+    }
+
     const formatDate = (d: Date) =>
       `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}-${d
         .getDate()

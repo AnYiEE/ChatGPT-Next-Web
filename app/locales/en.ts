@@ -473,6 +473,29 @@ const en: LocaleType = {
     Code: "Detected access code from url, confirm to apply? ",
     Settings: "Detected settings from url, confirm to apply?",
   },
+
+  OpenAI_SB: {
+    ApiKey: {
+      Title: "OpenAI-SB API Key",
+      SubTitle: "User custom OpenAI-SB Api Key",
+      Placeholder: "sb-xxx",
+    },
+    Pay: {
+      Title: "Recharge",
+      SubTitle: "Recharge the current API Key",
+      Placeholder: "Enter the pay code",
+      Buy: "Buy",
+      Confirm: "Confirm",
+    },
+    GPT4: {
+      Title: "Enable GPT 4",
+      SubTitle: "Enable GPT 4 for the current API Key",
+      Disabled: "Disabled",
+      Enabled: "Enabled",
+      Switch: "Double-click to toggle",
+      Unknown: "Click to query",
+    },
+  },
 };
 
 export default en;

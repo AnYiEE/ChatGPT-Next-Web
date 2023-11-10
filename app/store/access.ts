@@ -43,6 +43,9 @@ const DEFAULT_ACCESS_STATE = {
   disableGPT4: false,
   disableFastLink: false,
   customModels: "",
+
+  isOpenaiSb: false,
+  openaiSbPayCode: "",
 };
 
 export const useAccessStore = createPersistStore(

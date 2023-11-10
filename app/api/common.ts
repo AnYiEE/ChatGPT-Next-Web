@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSideConfig } from "../config/server";
-import { DEFAULT_MODELS, OPENAI_BASE_URL, GEMINI_BASE_URL } from "../constant";
+import {
+  DEFAULT_MODELS,
+  OPENAI_BASE_URL,
+  GEMINI_BASE_URL,
+  OPENAI_SB_BASE_URL,
+} from "../constant";
 import { collectModelTable } from "../utils/model";
 import { makeAzurePath } from "../azure";
 
@@ -31,7 +36,9 @@ export async function requestOpenai(req: NextRequest) {
   );
 
   let baseUrl =
-    serverConfig.azureUrl || serverConfig.baseUrl || OPENAI_BASE_URL;
+    serverConfig.azureUrl || serverConfig.isOpenaiSb
+      ? OPENAI_SB_BASE_URL
+      : serverConfig.baseUrl || OPENAI_BASE_URL;
 
   if (!baseUrl.startsWith("http")) {
     baseUrl = `https://${baseUrl}`;

@@ -72,6 +72,12 @@ import { nanoid } from "nanoid";
 import { useMaskStore } from "../store/mask";
 import { ProviderType } from "../utils/cloud";
 
+import {
+  OPENAI_SB_BASE_URL,
+  OPENAI_SB_SHOP_BASE_URL,
+  OpenaiPath,
+} from "../constant";
+
 function EditPromptModal(props: { id: string; onClose: () => void }) {
   const promptStore = usePromptStore();
   const prompt = promptStore.get(props.id);
@@ -653,6 +659,62 @@ export function Settings() {
   const clientConfig = useMemo(() => getClientConfig(), []);
   const showAccessCode = enabledAccessControl && !clientConfig?.isApp;
 
+  const showOpenaiSb =
+    accessStore.isOpenaiSb &&
+    accessStore.openaiApiKey &&
+    !accessStore.accessCode &&
+    !accessStore.hideUserApiKey;
+  const [gpt4State, setGpt4State] = useState<boolean | "unknown">("unknown");
+  async function checkGpt4(apiKey: string) {
+    if (gpt4State !== "unknown" || !apiKey) {
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${OPENAI_SB_BASE_URL}/${OpenaiPath.openaiSbStatusPath}?api_key=${apiKey}`,
+      );
+      if (!response.ok) {
+        throw new Error("Failed to query gpt4 state from openai-sb");
+      }
+      const json = (await response.json()) as {
+        code: string;
+        data: { enable_gpt4: number };
+        msg: string;
+      };
+      if (json.code !== "0") {
+        throw new Error(json.msg);
+      }
+      setGpt4State(Boolean(json.data.enable_gpt4));
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  async function switchGpt4(apiKey: string) {
+    if (gpt4State === "unknown" || !apiKey) {
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${OPENAI_SB_BASE_URL}/${
+          OpenaiPath.openaiSbSwitchGpt4Path
+        }?api_key=${apiKey}&enable=${gpt4State ? "0" : "1"}`,
+      );
+      if (!response.ok) {
+        throw new Error("Failed to set gpt4 state");
+      }
+      const json = (await response.json()) as {
+        code: string;
+        msg: string;
+      };
+      if (json.code !== "0") {
+        throw new Error(json.msg);
+      }
+      setGpt4State(!gpt4State);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   return (
     <ErrorBoundary>
       <div className="window-header" data-tauri-drag-region>
@@ -899,7 +961,7 @@ export function Settings() {
         </List>
 
         <List id={SlotID.CustomModel}>
-          {showAccessCode && (
+          {showAccessCode && !accessStore.openaiApiKey && (
             <ListItem
               title={Locale.Settings.Access.AccessCode.Title}
               subTitle={Locale.Settings.Access.AccessCode.SubTitle}
@@ -919,7 +981,7 @@ export function Settings() {
 
           {!accessStore.hideUserApiKey && (
             <>
-              {
+              {!accessStore.isOpenaiSb &&
                 // Conditionally render the following ListItem based on clientConfig.isApp
                 !clientConfig?.isApp && ( // only show if isApp is false
                   <ListItem
@@ -937,70 +999,123 @@ export function Settings() {
                       }
                     ></input>
                   </ListItem>
-                )
-              }
-              {accessStore.useCustomConfig && (
+                )}
+              {(accessStore.isOpenaiSb || accessStore.useCustomConfig) && (
                 <>
-                  <ListItem
-                    title={Locale.Settings.Access.Provider.Title}
-                    subTitle={Locale.Settings.Access.Provider.SubTitle}
-                  >
-                    <Select
-                      value={accessStore.provider}
-                      onChange={(e) => {
-                        accessStore.update(
-                          (access) =>
-                            (access.provider = e.target
-                              .value as ServiceProvider),
-                        );
-                      }}
+                  {!accessStore.isOpenaiSb && (
+                    <ListItem
+                      title={Locale.Settings.Access.Provider.Title}
+                      subTitle={Locale.Settings.Access.Provider.SubTitle}
                     >
-                      {Object.entries(ServiceProvider).map(([k, v]) => (
-                        <option value={v} key={k}>
-                          {k}
-                        </option>
-                      ))}
-                    </Select>
-                  </ListItem>
+                      <Select
+                        value={accessStore.provider}
+                        onChange={(e) => {
+                          accessStore.update(
+                            (access) =>
+                              (access.provider = e.target
+                                .value as ServiceProvider),
+                          );
+                        }}
+                      >
+                        {Object.entries(ServiceProvider).map(([k, v]) => (
+                          <option value={v} key={k}>
+                            {k}
+                          </option>
+                        ))}
+                      </Select>
+                    </ListItem>
+                  )}
 
-                  {accessStore.provider === "OpenAI" ? (
+                  {accessStore.isOpenaiSb ||
+                  accessStore.provider === "OpenAI" ? (
                     <>
-                      <ListItem
-                        title={Locale.Settings.Access.OpenAI.Endpoint.Title}
-                        subTitle={
-                          Locale.Settings.Access.OpenAI.Endpoint.SubTitle
-                        }
-                      >
-                        <input
-                          type="text"
-                          value={accessStore.openaiUrl}
-                          placeholder={OPENAI_BASE_URL}
-                          onChange={(e) =>
-                            accessStore.update(
-                              (access) =>
-                                (access.openaiUrl = e.currentTarget.value),
-                            )
+                      {!accessStore.isOpenaiSb && (
+                        <ListItem
+                          title={Locale.Settings.Access.OpenAI.Endpoint.Title}
+                          subTitle={
+                            Locale.Settings.Access.OpenAI.Endpoint.SubTitle
                           }
-                        ></input>
-                      </ListItem>
-                      <ListItem
-                        title={Locale.Settings.Access.OpenAI.ApiKey.Title}
-                        subTitle={Locale.Settings.Access.OpenAI.ApiKey.SubTitle}
-                      >
-                        <PasswordInput
-                          value={accessStore.openaiApiKey}
-                          type="text"
-                          placeholder={
-                            Locale.Settings.Access.OpenAI.ApiKey.Placeholder
+                        >
+                          <input
+                            type="text"
+                            value={accessStore.openaiUrl}
+                            placeholder={OPENAI_BASE_URL}
+                            onChange={(e) =>
+                              accessStore.update(
+                                (access) =>
+                                  (access.openaiUrl = e.currentTarget.value),
+                              )
+                            }
+                          ></input>
+                        </ListItem>
+                      )}
+
+                      {accessStore.isOpenaiSb ? (
+                        <>
+                          {!accessStore.accessCode && (
+                            <ListItem
+                              title={Locale.OpenAI_SB.ApiKey.Title}
+                              subTitle={Locale.OpenAI_SB.ApiKey.SubTitle}
+                            >
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "flex-end",
+                                }}
+                              >
+                                <input
+                                  value={accessStore.openaiApiKey}
+                                  type="password"
+                                  placeholder={
+                                    Locale.OpenAI_SB.ApiKey.Placeholder
+                                  }
+                                  onChange={(e) => {
+                                    accessStore.update(
+                                      (access) =>
+                                        (access.openaiApiKey =
+                                          e.currentTarget.value.trim()),
+                                    );
+                                  }}
+                                  style={{ minWidth: "fit-content" }}
+                                />
+                                {accessStore.openaiApiKey && (
+                                  <Link
+                                    href={OPENAI_SB_SHOP_BASE_URL}
+                                    rel="noreferrer"
+                                    target="_blank"
+                                    className="link"
+                                    style={{ marginLeft: "10px" }}
+                                  >
+                                    {Locale.OpenAI_SB.Pay.Buy}
+                                  </Link>
+                                )}
+                              </div>
+                            </ListItem>
+                          )}
+                        </>
+                      ) : (
+                        <ListItem
+                          title={Locale.Settings.Access.OpenAI.ApiKey.Title}
+                          subTitle={
+                            Locale.Settings.Access.OpenAI.ApiKey.SubTitle
                           }
-                          onChange={(e) => {
-                            accessStore.update(
-                              (access) =>
-                                (access.openaiApiKey = e.currentTarget.value),
-                            );
-                          }}
-                        />
-                      </ListItem>
+                        >
+                          <PasswordInput
+                            value={accessStore.openaiApiKey}
+                            type="text"
+                            placeholder={
+                              Locale.Settings.Access.OpenAI.ApiKey.Placeholder
+                            }
+                            onChange={(e) => {
+                              accessStore.update(
+                                (access) =>
+                                  (access.openaiApiKey = e.currentTarget.value),
+                              );
+                            }}
+                          />
+                        </ListItem>
+                      )}
                     </>
                   ) : accessStore.provider === "Azure" ? (
                     <>
@@ -1134,7 +1249,9 @@ export function Settings() {
                   ? loadingUsage
                     ? Locale.Settings.Usage.IsChecking
                     : Locale.Settings.Usage.SubTitle(
-                        usage?.used ?? "[?]",
+                        usage?.used === usage?.subscription
+                          ? "[?]"
+                          : usage?.used ?? "[?]",
                         usage?.subscription ?? "[?]",
                       )
                   : Locale.Settings.Usage.NoAccess
@@ -1151,6 +1268,87 @@ export function Settings() {
               )}
             </ListItem>
           ) : null}
+
+          {showOpenaiSb && (
+            <ListItem
+              title={Locale.OpenAI_SB.Pay.Title}
+              subTitle={Locale.OpenAI_SB.Pay.SubTitle}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <input
+                  value={accessStore.openaiSbPayCode}
+                  type="text"
+                  placeholder={Locale.OpenAI_SB.Pay.Placeholder}
+                  onChange={(e) => {
+                    accessStore.update(
+                      (access) =>
+                        (access.openaiSbPayCode = e.currentTarget.value.trim()),
+                    );
+                  }}
+                />
+                {accessStore.openaiSbPayCode ? (
+                  <Link
+                    href={`${OPENAI_SB_BASE_URL}/${OpenaiPath.openaiSbCardPath}/use?api_key=${accessStore.openaiApiKey}&card=${accessStore.openaiSbPayCode}`}
+                    rel="noreferrer"
+                    target="_blank"
+                    className="link"
+                    style={{ marginLeft: "10px" }}
+                    onClick={() => {
+                      setTimeout(() => {
+                        accessStore.update(
+                          (access) => (access.openaiSbPayCode = ""),
+                        );
+                      });
+                    }}
+                  >
+                    {Locale.OpenAI_SB.Pay.Confirm}
+                  </Link>
+                ) : (
+                  <Link
+                    href={OPENAI_SB_SHOP_BASE_URL}
+                    rel="noreferrer"
+                    target="_blank"
+                    className="link"
+                    style={{ marginLeft: "10px" }}
+                  >
+                    {Locale.OpenAI_SB.Pay.Buy}
+                  </Link>
+                )}
+              </div>
+            </ListItem>
+          )}
+
+          {showOpenaiSb && (
+            <ListItem
+              title={Locale.OpenAI_SB.GPT4.Title}
+              subTitle={Locale.OpenAI_SB.GPT4.SubTitle}
+            >
+              <button
+                className="button_icon-button__BC_Ca clickable"
+                onClick={async () => {
+                  await checkGpt4(accessStore.openaiApiKey);
+                }}
+                onDoubleClick={async () => {
+                  await switchGpt4(accessStore.openaiApiKey);
+                }}
+                title={
+                  gpt4State === "unknown" ? "" : Locale.OpenAI_SB.GPT4.Switch
+                }
+              >
+                {gpt4State === "unknown"
+                  ? Locale.OpenAI_SB.GPT4.Unknown
+                  : gpt4State
+                  ? Locale.OpenAI_SB.GPT4.Enabled
+                  : Locale.OpenAI_SB.GPT4.Disabled}
+              </button>
+            </ListItem>
+          )}
 
           <ListItem
             title={Locale.Settings.Access.CustomModel.Title}

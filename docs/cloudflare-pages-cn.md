@@ -33,6 +33,7 @@
     - `DISABLE_GPT4=1 可选，不让用户使用 GPT-4`
     - `ENABLE_BALANCE_QUERY=1 可选，启用余额查询功能`
     - `DISABLE_FAST_LINK=1 可选，禁用从链接解析预制设置`
+    - `OPENAI_SB=1 可选，指定使用第三方 OpenAI-SB 的 API`
 
 12. 点击 "Save and Deploy"。
 13. 点击 "Cancel deployment"，因为需要填写 Compatibility flags。

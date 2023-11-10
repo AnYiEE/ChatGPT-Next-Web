@@ -467,6 +467,29 @@ const cn = {
     Topic: "主题",
     Time: "时间",
   },
+
+  OpenAI_SB: {
+    ApiKey: {
+      Title: "API Key",
+      SubTitle: "使用自定义 OpenAI-SB Key 绕过密码访问限制",
+      Placeholder: "sb-xxx",
+    },
+    Pay: {
+      Title: "余额充值",
+      SubTitle: "为当前 API Key 充值",
+      Placeholder: "请输入卡密",
+      Buy: "购买",
+      Confirm: "确定",
+    },
+    GPT4: {
+      Title: "启用 GPT 4",
+      SubTitle: "为当前 API Key 启用 GPT 4",
+      Disabled: "未启用",
+      Enabled: "已启用",
+      Switch: "双击切换",
+      Unknown: "点击查询",
+    },
+  },
 };
 
 type DeepPartial<T> = T extends object

@@ -13,6 +13,9 @@ export const OPENAI_BASE_URL = "https://api.openai.com";
 
 export const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/";
 
+export const OPENAI_SB_BASE_URL = "https://api.openai-sb.com";
+export const OPENAI_SB_SHOP_BASE_URL = "https://shop.openai.sb";
+
 export enum Path {
   Home = "/",
   Chat = "/chat",
@@ -79,6 +82,10 @@ export const OpenaiPath = {
   UsagePath: "dashboard/billing/usage",
   SubsPath: "dashboard/billing/subscription",
   ListModelPath: "v1/models",
+
+  openaiSbCardPath: "sb-api/user/card",
+  openaiSbSwitchGpt4Path: "sb-api/user/switch_gpt4",
+  openaiSbStatusPath: "sb-api/user/status",
 };
 
 export const Azure = {

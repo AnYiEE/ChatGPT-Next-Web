@@ -233,6 +233,11 @@ To control custom models, use `+` to add a custom model, use `-` to hide a model
 
 User `-all` to disable all default models, `+all` to enable all default models.
 
+### `OPENAI_SB` (optional)
+
+> Default: Empty
+> If you want to use the third-party [OpenAI-SB](https://openai-sb.com) API, set this value to 1.
+
 ## Requirements
 
 NodeJS >= 18, Docker >= 20

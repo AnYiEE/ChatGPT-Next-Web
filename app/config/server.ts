@@ -33,6 +33,8 @@ declare global {
 
       // google tag manager
       GTM_ID?: string;
+
+      OPENAI_SB?: string;
     }
   }
 }
@@ -106,5 +108,7 @@ export const getServerSideConfig = () => {
     hideBalanceQuery: !process.env.ENABLE_BALANCE_QUERY,
     disableFastLink: !!process.env.DISABLE_FAST_LINK,
     customModels,
+
+    isOpenaiSb: !!process.env.OPENAI_SB,
   };
 };
