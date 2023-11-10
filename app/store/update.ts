@@ -52,7 +52,7 @@ async function getVersion(type: VersionType) {
 
 export const useUpdateStore = createPersistStore(
   {
-    versionType: "tag" as VersionType,
+    versionType: "date" as VersionType,
     lastUpdate: 0,
     version: "unknown",
     remoteVersion: "",
