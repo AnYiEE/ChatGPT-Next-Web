@@ -12,23 +12,24 @@ Bifurca el proyecto en Github, luego inicia sesión en dash.cloudflare.com y ve 
 6.  Para "Nombre del proyecto" y "Rama de producción", puede utilizar los valores predeterminados o cambiarlos según sea necesario.
 7.  En Configuración de compilación, seleccione la opción Ajustes preestablecidos de Framework y seleccione Siguiente.js.
 8.  Debido a los errores de node:buffer, no use el "comando Construir" predeterminado por ahora. Utilice el siguiente comando:
-        npx https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/4930842298/npm-package-next-on-pages-230 --experimental-minify
+    npx https://prerelease-registry.devprod.cloudflare.dev/next-on-pages/runs/4930842298/npm-package-next-on-pages-230 --experimental-minify
 9.  Para "Generar directorio de salida", utilice los valores predeterminados y no los modifique.
 10. No modifique el "Directorio raíz".
 11. Para "Variables de entorno", haga clic en ">" y luego haga clic en "Agregar variable". Rellene la siguiente información:
 
-    *   `NODE_VERSION=20.1`
-    *   `NEXT_TELEMETRY_DISABLE=1`
-    *   `OPENAI_API_KEY=你自己的API Key`
-    *   `YARN_VERSION=1.22.19`
-    *   `PHP_VERSION=7.4`
+    - `NODE_VERSION=20.1`
+    - `NEXT_TELEMETRY_DISABLE=1`
+    - `OPENAI_API_KEY=你自己的API Key`
+    - `YARN_VERSION=1.22.19`
+    - `PHP_VERSION=7.4`
 
     Dependiendo de sus necesidades reales, puede completar opcionalmente las siguientes opciones:
 
-    *   `CODE= 可选填，访问密码，可以使用逗号隔开多个密码`
-    *   `OPENAI_ORG_ID= 可选填，指定 OpenAI 中的组织 ID`
-    *   `HIDE_USER_API_KEY=1 可选，不让用户自行填入 API Key`
-    *   `DISABLE_GPT4=1 可选，不让用户使用 GPT-4`
+    - `CODE= 可选填，访问密码，可以使用逗号隔开多个密码`
+    - `OPENAI_ORG_ID= 可选填，指定 OpenAI 中的组织 ID`
+    - `HIDE_USER_API_KEY=1 可选，不让用户自行填入 API Key`
+    - `DISABLE_GPT4=1 可选，不让用户使用 GPT-4`
+
 12. Haga clic en "Guardar e implementar".
 13. Haga clic en "Cancelar implementación" porque necesita rellenar los indicadores de compatibilidad.
 14. Vaya a "Configuración de compilación", "Funciones" y busque "Indicadores de compatibilidad".
