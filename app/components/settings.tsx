@@ -51,6 +51,7 @@ import Locale, {
 import { copyToClipboard } from "../utils";
 import Link from "next/link";
 import {
+  Anthropic,
   Azure,
   Google,
   OPENAI_BASE_URL,
@@ -1027,97 +1028,99 @@ export function Settings() {
                   )}
 
                   {accessStore.isOpenaiSb ||
-                  accessStore.provider === "OpenAI" ? (
-                    <>
-                      {!accessStore.isOpenaiSb && (
-                        <ListItem
-                          title={Locale.Settings.Access.OpenAI.Endpoint.Title}
-                          subTitle={
-                            Locale.Settings.Access.OpenAI.Endpoint.SubTitle
-                          }
-                        >
-                          <input
-                            type="text"
-                            value={accessStore.openaiUrl}
-                            placeholder={OPENAI_BASE_URL}
-                            onChange={(e) =>
-                              accessStore.update(
-                                (access) =>
-                                  (access.openaiUrl = e.currentTarget.value),
-                              )
+                    (accessStore.provider === ServiceProvider.OpenAI && (
+                      <>
+                        {!accessStore.isOpenaiSb && (
+                          <ListItem
+                            title={Locale.Settings.Access.OpenAI.Endpoint.Title}
+                            subTitle={
+                              Locale.Settings.Access.OpenAI.Endpoint.SubTitle
                             }
-                          ></input>
-                        </ListItem>
-                      )}
+                          >
+                            <input
+                              type="text"
+                              value={accessStore.openaiUrl}
+                              placeholder={OPENAI_BASE_URL}
+                              onChange={(e) =>
+                                accessStore.update(
+                                  (access) =>
+                                    (access.openaiUrl = e.currentTarget.value),
+                                )
+                              }
+                            ></input>
+                          </ListItem>
+                        )}
 
-                      {accessStore.isOpenaiSb ? (
-                        <>
-                          {!accessStore.accessCode && (
-                            <ListItem
-                              title={Locale.OpenAI_SB.ApiKey.Title}
-                              subTitle={Locale.OpenAI_SB.ApiKey.SubTitle}
-                            >
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "flex-end",
-                                }}
+                        {accessStore.isOpenaiSb ? (
+                          <>
+                            {!accessStore.accessCode && (
+                              <ListItem
+                                title={Locale.OpenAI_SB.ApiKey.Title}
+                                subTitle={Locale.OpenAI_SB.ApiKey.SubTitle}
                               >
-                                <input
-                                  value={accessStore.openaiApiKey}
-                                  type="password"
-                                  placeholder={
-                                    Locale.OpenAI_SB.ApiKey.Placeholder
-                                  }
-                                  onChange={(e) => {
-                                    accessStore.update(
-                                      (access) =>
-                                        (access.openaiApiKey =
-                                          e.currentTarget.value.trim()),
-                                    );
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "flex-end",
                                   }}
-                                  style={{ minWidth: "fit-content" }}
-                                />
-                                {accessStore.openaiApiKey && (
-                                  <Link
-                                    href={OPENAI_SB_SHOP_BASE_URL}
-                                    rel="noreferrer"
-                                    target="_blank"
-                                    className="link"
-                                    style={{ marginLeft: "10px" }}
-                                  >
-                                    {Locale.OpenAI_SB.Pay.Buy}
-                                  </Link>
-                                )}
-                              </div>
-                            </ListItem>
-                          )}
-                        </>
-                      ) : (
-                        <ListItem
-                          title={Locale.Settings.Access.OpenAI.ApiKey.Title}
-                          subTitle={
-                            Locale.Settings.Access.OpenAI.ApiKey.SubTitle
-                          }
-                        >
-                          <PasswordInput
-                            value={accessStore.openaiApiKey}
-                            type="text"
-                            placeholder={
-                              Locale.Settings.Access.OpenAI.ApiKey.Placeholder
+                                >
+                                  <input
+                                    value={accessStore.openaiApiKey}
+                                    type="password"
+                                    placeholder={
+                                      Locale.OpenAI_SB.ApiKey.Placeholder
+                                    }
+                                    onChange={(e) => {
+                                      accessStore.update(
+                                        (access) =>
+                                          (access.openaiApiKey =
+                                            e.currentTarget.value.trim()),
+                                      );
+                                    }}
+                                    style={{ minWidth: "fit-content" }}
+                                  />
+                                  {accessStore.openaiApiKey && (
+                                    <Link
+                                      href={OPENAI_SB_SHOP_BASE_URL}
+                                      rel="noreferrer"
+                                      target="_blank"
+                                      className="link"
+                                      style={{ marginLeft: "10px" }}
+                                    >
+                                      {Locale.OpenAI_SB.Pay.Buy}
+                                    </Link>
+                                  )}
+                                </div>
+                              </ListItem>
+                            )}
+                          </>
+                        ) : (
+                          <ListItem
+                            title={Locale.Settings.Access.OpenAI.ApiKey.Title}
+                            subTitle={
+                              Locale.Settings.Access.OpenAI.ApiKey.SubTitle
                             }
-                            onChange={(e) => {
-                              accessStore.update(
-                                (access) =>
-                                  (access.openaiApiKey = e.currentTarget.value),
-                              );
-                            }}
-                          />
-                        </ListItem>
-                      )}
-                    </>
-                  ) : accessStore.provider === "Azure" ? (
+                          >
+                            <PasswordInput
+                              value={accessStore.openaiApiKey}
+                              type="text"
+                              placeholder={
+                                Locale.Settings.Access.OpenAI.ApiKey.Placeholder
+                              }
+                              onChange={(e) => {
+                                accessStore.update(
+                                  (access) =>
+                                    (access.openaiApiKey =
+                                      e.currentTarget.value),
+                                );
+                              }}
+                            />
+                          </ListItem>
+                        )}
+                      </>
+                    ))}
+                  {accessStore.provider === ServiceProvider.Azure && (
                     <>
                       <ListItem
                         title={Locale.Settings.Access.Azure.Endpoint.Title}
@@ -1176,7 +1179,8 @@ export function Settings() {
                         ></input>
                       </ListItem>
                     </>
-                  ) : accessStore.provider === "Google" ? (
+                  )}
+                  {accessStore.provider === ServiceProvider.Google && (
                     <>
                       <ListItem
                         title={Locale.Settings.Access.Google.Endpoint.Title}
@@ -1235,7 +1239,70 @@ export function Settings() {
                         ></input>
                       </ListItem>
                     </>
-                  ) : null}
+                  )}
+                  {accessStore.provider === ServiceProvider.Anthropic && (
+                    <>
+                      <ListItem
+                        title={Locale.Settings.Access.Anthropic.Endpoint.Title}
+                        subTitle={
+                          Locale.Settings.Access.Anthropic.Endpoint.SubTitle +
+                          Anthropic.ExampleEndpoint
+                        }
+                      >
+                        <input
+                          type="text"
+                          value={accessStore.anthropicUrl}
+                          placeholder={Anthropic.ExampleEndpoint}
+                          onChange={(e) =>
+                            accessStore.update(
+                              (access) =>
+                                (access.anthropicUrl = e.currentTarget.value),
+                            )
+                          }
+                        ></input>
+                      </ListItem>
+                      <ListItem
+                        title={Locale.Settings.Access.Anthropic.ApiKey.Title}
+                        subTitle={
+                          Locale.Settings.Access.Anthropic.ApiKey.SubTitle
+                        }
+                      >
+                        <PasswordInput
+                          value={accessStore.anthropicApiKey}
+                          type="text"
+                          placeholder={
+                            Locale.Settings.Access.Anthropic.ApiKey.Placeholder
+                          }
+                          onChange={(e) => {
+                            accessStore.update(
+                              (access) =>
+                                (access.anthropicApiKey =
+                                  e.currentTarget.value),
+                            );
+                          }}
+                        />
+                      </ListItem>
+                      <ListItem
+                        title={Locale.Settings.Access.Anthropic.ApiVerion.Title}
+                        subTitle={
+                          Locale.Settings.Access.Anthropic.ApiVerion.SubTitle
+                        }
+                      >
+                        <input
+                          type="text"
+                          value={accessStore.anthropicApiVersion}
+                          placeholder={Anthropic.Vision}
+                          onChange={(e) =>
+                            accessStore.update(
+                              (access) =>
+                                (access.anthropicApiVersion =
+                                  e.currentTarget.value),
+                            )
+                          }
+                        ></input>
+                      </ListItem>
+                    </>
+                  )}
                 </>
               )}
             </>
