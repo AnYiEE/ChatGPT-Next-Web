@@ -157,6 +157,10 @@ anthropic claude Api Url.
 
 用来控制模型列表，使用 `+` 增加一个模型，使用 `-` 来隐藏一个模型，使用 `模型名=展示名` 来自定义模型的展示名，用英文逗号隔开。
 
+### `DEFAULT_INPUT_TEMPLATE` （可选）
+
+自定义默认的 template，用于初始化『设置』中的『用户输入预处理』配置项
+
 ### `OPENAI_SB` （可选）
 
 如果你想使用第三方 [OpenAI-SB](https://openai-sb.com) 的 API，将此环境变量设置为 1 即可。
