@@ -4,9 +4,10 @@ import {
   DEFAULT_MODELS,
   OPENAI_BASE_URL,
   GEMINI_BASE_URL,
+  ServiceProvider,
   OPENAI_SB_BASE_URL,
 } from "../constant";
-import { collectModelTable } from "../utils/model";
+import { isModelAvailableInServer } from "../utils/model";
 import { makeAzurePath } from "../azure";
 
 const serverConfig = getServerSideConfig();
@@ -90,17 +91,24 @@ export async function requestOpenai(req: NextRequest) {
   // #1815 try to refuse gpt4 request
   if (serverConfig.customModels && req.body) {
     try {
-      const modelTable = collectModelTable(
-        DEFAULT_MODELS,
-        serverConfig.customModels,
-      );
       const clonedBody = await req.text();
       fetchOptions.body = clonedBody;
 
       const jsonBody = JSON.parse(clonedBody) as { model?: string };
 
       // not undefined and is false
-      if (modelTable[jsonBody?.model ?? ""].available === false) {
+      if (
+        isModelAvailableInServer(
+          serverConfig.customModels,
+          jsonBody?.model as string,
+          ServiceProvider.OpenAI as string,
+        ) ||
+        isModelAvailableInServer(
+          serverConfig.customModels,
+          jsonBody?.model as string,
+          ServiceProvider.Azure as string,
+        )
+      ) {
         return NextResponse.json(
           {
             error: true,
