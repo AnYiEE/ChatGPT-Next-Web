@@ -28,6 +28,7 @@ export enum Path {
 
 export enum ApiPath {
   Cors = "",
+  Azure = "/api/azure",
   OpenAI = "/api/openai",
   Anthropic = "/api/anthropic",
 }
@@ -100,6 +101,8 @@ export const OpenaiPath = {
 };
 
 export const Azure = {
+  ChatPath: (deployName: string, apiVersion: string) =>
+    `deployments/${deployName}/chat/completions?api-version=${apiVersion}`,
   ExampleEndpoint: "https://{resource-url}/openai/deployments/{deploy-id}",
 };
 
@@ -157,6 +160,7 @@ const openaiModels = [
   "gpt-4o-2024-05-13",
   "gpt-4-vision-preview",
   "gpt-4-turbo-2024-04-09",
+  "gpt-4-1106-preview",
 ];
 
 const googleModels = [
@@ -184,6 +188,15 @@ export const DEFAULT_MODELS = [
       id: "openai",
       providerName: "OpenAI",
       providerType: "openai",
+    },
+  })),
+  ...openaiModels.map((name) => ({
+    name,
+    available: true,
+    provider: {
+      id: "azure",
+      providerName: "Azure",
+      providerType: "azure",
     },
   })),
   ...googleModels.map((name) => ({
